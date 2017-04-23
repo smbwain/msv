@@ -1,0 +1,83 @@
+import 'source-map-support/register';
+
+import assert from 'assert';
+
+import {service, event, schema, App, Config} from '../..';
+import Joi from 'joi';
+
+// -
+
+function wait(interval = 1000) {
+    return new Promise(resolve => {
+        setTimeout(resolve, interval);
+    })
+}
+
+@service
+class TestService {
+    @event
+    @schema(Joi.object().required().keys({
+        num: Joi.number().required()
+    }))
+    async test({
+        num
+    }, {
+        logger: {
+            debug
+        }
+    }) {
+        debug(`Start: ${num}`);
+        await wait();
+        debug(`Stop: ${num}`);
+    }
+}
+
+describe('call-event', () => {
+
+    let app;
+
+    it('should start', async function () {
+
+        app = new App({
+            config: Config.fromObject({
+                app: {
+                    bridge: {
+                        type: 'local'
+                    }
+                }
+            }),
+            services: {
+                test: {
+                    Class: TestService
+                }
+            }
+        });
+        await app.start();
+
+    });
+
+    it('should run task', async function () {
+
+        await app.send('test', {num: 13});
+
+    });
+
+    it('should run task 3 times', async function () {
+
+        this.timeout(7000);
+
+        await Promise.all([
+            app.send('test', {num: 1}),
+            app.send('test', {num: 2}),
+            app.send('test', {num: 3})
+        ]);
+
+    });
+
+    it('should stop', async function() {
+
+        await app.stop();
+
+    });
+
+});
