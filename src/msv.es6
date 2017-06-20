@@ -71,18 +71,39 @@ export function runApp(options) {
     })();
 }
 
+export async function shadowApp(options, handler) {
+    const app = new App({
+        ...options,
+        shadowMode: true
+    });
+    try {
+        await app.start();
+        await handler(app);
+    } catch(err) {
+        app.logger.error(err);
+    } finally {
+        try {
+            await app.stop();
+        } catch(err) {
+            app.logger.error(err);
+        }
+    }
+}
+
 /**
  * @decorator
  */
-export const service = wrapDecorator((options = {}) => {
+export const service = wrapDecorator(({uses = []} = {}) => {
     return function(target) {
-        target.prototype.__initService = function({config, app, logger, modules}) {
+        target.prototype.__uses = new Set(uses);
+        target.prototype.__initService = function({config, app, logger, modules, shadowMode = false}) {
             this.config = config;
             this.run = ::app.run;
             this.send = ::app.send;
             this.app = app;
             this.logger = logger;
             this.modules = modules;
+            this.shadowMode = shadowMode;
             checkUses(this);
         };
         target.prototype.__getExportedMethods = function() {
@@ -166,8 +187,9 @@ export const event = wrapDecorator((options = {}) => {
     }
 });
 
-export const module = wrapDecorator((options = {}) => {
+export const module = wrapDecorator(({uses = []} = {}) => {
     return function(target) {
+        target.prototype.__uses = new Set(uses);
         target.prototype.__initModule = function({config, logger, modules}) {
             this.modules = modules;
             this.config = config;
@@ -207,25 +229,4 @@ export function schema(schema) {
             value: wrapFunction(descriptor.value, newFunction)
         }
     };
-}
-
-export function uses(...modules) {
-    return (target) => {
-        target.prototype.__uses = target.prototype.__uses || new Set();
-        modules.forEach(module => target.prototype.__uses.add(module));
-    };
-}
-
-export function sends(...events) {
-    return function(target, key, descriptor) {
-        target.prototype.__sends = target.prototype.__sends || new Set();
-        events.forEach(event => target.prototype.__sends.add(event));
-    }
-}
-
-export function runs(...tasks) {
-    return function(target, key, descriptor) {
-        target.prototype.__runs = target.prototype.__runs || new Set();
-        tasks.forEach(task => target.prototype.__runs.add(task));
-    }
 }

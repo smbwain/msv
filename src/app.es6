@@ -12,7 +12,7 @@ import { DepsTree, STATE_NAMES } from './deps-tree';
 }*/
 
 export class App {
-    constructor({services, modules, config = Config.simple(), bridges = {}}) {
+    constructor({services, modules, config = Config.basic(), bridges = {}, shadowMode = false}) {
         const shareConfig = config.sub('common');
         const appConfig = shareConfig.merge(config.sub(`app`));
 
@@ -86,18 +86,23 @@ export class App {
                             tag: `Service:${serviceName}`,
                             level: parseInt(serviceConfig.get('logLevel', 4))
                         }),
-                        modules
+                        modules,
+                        shadowMode
                     });
                     if(service.init) {
                         await service.init();
                     }
-                    await this._bridge.startListening(serviceName, service.__getExportedMethods());
+                    if(!shadowMode) {
+                        await this._bridge.startListening(serviceName, service.__getExportedMethods());
+                    }
                     return service;
                 },
                 deinit: async () => {
                     const service = this._services[serviceName];
                     delete this._services[serviceName];
-                    await this._bridge.stopListening(serviceName);
+                    if(!shadowMode) {
+                        await this._bridge.stopListening(serviceName);
+                    }
                     if(service.deinit) {
                         await service.deinit();
                     }

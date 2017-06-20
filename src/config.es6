@@ -7,14 +7,18 @@ export default class Config {
         return new Config().mergeObject(object);
     }
 
-    static simple({envVarNamePrefix = 'APP_'} = {}) {
+    static basic({envVarNamePrefix = 'APP_', env = process.env} = {}) {
         const {join} = require('path');
-        const NODE_ENV = process.env.NODE_ENV || 'development';
-        const NODE_CONFIG_DIR = process.env.NODE_CONFIG_DIR || join(process.cwd(), 'config');
+        const NODE_ENV = env.NODE_ENV || 'development';
+        const NODE_CONFIG_DIR = env.NODE_CONFIG_DIR || join(process.cwd(), 'config');
         return new Config()
             .mergeFileSync(join(NODE_CONFIG_DIR, `default.yml`))
             .mergeFileSync(join(NODE_CONFIG_DIR, `${NODE_ENV}.yml`))
             .mergeEnv({varNamePrefix: envVarNamePrefix});
+    }
+
+    static fromFileSync(filename, type) {
+        return new Config().mergeFileSync(filename, type);
     }
 
     merge(config) {

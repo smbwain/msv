@@ -1,13 +1,8 @@
 {
   "name": "msv",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "Micro Services Framework",
   "main": "dist/msv.js",
-  "scripts": {
-    "test": "mocha dist/tests"
-  },
-  "author": "Roman Ditchuk",
-  "license": "ISC",
   "dependencies": {
     "colors": "1.1.2",
     "defer-promise": "1.0.1",
@@ -24,5 +19,23 @@
     "joi": "10.2.2",
     "mocha": "3.2.0",
     "source-map-support": "0.4.11"
-  }
+  },
+  "scripts": {
+    "build": "gulp build",
+    "doc": "",
+    "test": "mocha dist/tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smbwain/msv.git"
+  },
+  "keywords": [
+    "microservice"
+  ],
+  "author": "Roman Ditchuk",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/smbwain/msv/issues"
+  },
+  "homepage": "https://github.com/smbwain/msv#readme"
 }

@@ -1,0 +1,6 @@
+site_name: msv
+pages:
+  - 1. Introduction: index.md
+  - 2. Get started: get-started.md
+  - 3. API: api.md
+theme: readthedocs
