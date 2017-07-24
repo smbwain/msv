@@ -1,8 +1,10 @@
 
-import {App} from './app';
-export {default as Config} from './config';
+import {Application} from './application';
+import {ApplicationOptions, ApplicationInterface, SyncOrAsync, BridgeOptions, BridgeFactory} from "../types";
+export * from 'msv-config';
+import LocalBridge from './local-bridge';
 
-export {App};
+export {Application};
 
 function wrapFunction(func, handler) {
     const newFunc = handler(func);
@@ -22,18 +24,7 @@ function wrapDecorator(f) {
     }
 }
 
-function getAllPropertyNames(obj) {
-    const methods = {};
-    while(obj) {
-        for(const name of Object.getOwnPropertyNames(obj)) {
-            methods[name] = 1;
-        }
-        obj = Object.getPrototypeOf(obj);
-    }
-    return Object.keys(methods);
-}
-
-function checkUses(obj) {
+/*function checkUses(obj) {
     const uses = obj.__uses || new Set();
     for(const moduleName of uses) {
         if(!obj.modules[moduleName]) {
@@ -45,11 +36,11 @@ function checkUses(obj) {
             this.logger.warn(`Passed module "${moduleName}" isn't used`);
         }
     }
-}
+}*/
 
-export function runApp(options) {
-    const app = new App(options);
-    async function term(code) {
+export function runApp(options: ApplicationOptions) : void {
+    const app = new Application(options);
+    async function term(code? : string) {
         try {
             if(code) {
                 app.logger.log(`Signal ${code} has been caught`);
@@ -71,8 +62,8 @@ export function runApp(options) {
     })();
 }
 
-export async function shadowApp(options, handler) {
-    const app = new App({
+export async function shadowApp(options : ApplicationOptions, handler : (app: ApplicationInterface) => SyncOrAsync<void>) : Promise<void> {
+    const app = new Application({
         ...options,
         shadowMode: true
     });
@@ -89,79 +80,6 @@ export async function shadowApp(options, handler) {
         }
     }
 }
-
-/**
- * @decorator
- */
-export const service = wrapDecorator(({uses = []} = {}) => {
-    return function(target) {
-        target.prototype.__uses = new Set(uses);
-        target.prototype.__initService = function({config, app, logger, modules, shadowMode = false}) {
-            this.config = config;
-            this.run = ::app.run;
-            this.send = ::app.send;
-            this.app = app;
-            this.logger = logger;
-            this.modules = modules;
-            this.shadowMode = shadowMode;
-            checkUses(this);
-        };
-        target.prototype.__getExportedMethods = function() {
-            const exportedMethods = {
-                tasks: {},
-                events: {}
-            };
-            // find tasks & events
-            for (const propName of getAllPropertyNames(this)) {
-                const prop = this[propName];
-                if (typeof prop != 'function' || propName[0] == '_') {
-                    continue;
-                }
-                if (prop._task) {
-                    const {concurrency = 10, timeout = 60000} = prop._task;
-                    const logger = this.logger.sub({
-                        tag: `Task:${propName}`
-                    });
-                    exportedMethods.tasks[propName] = {
-                        options: {
-                            concurrency,
-                            timeout
-                        },
-                        handler: async data => {
-                            try {
-                                return await this[propName](data, { logger });
-                            } catch (err) {
-                                // log error to logger and throw error to client service
-                                logger.error(err);
-                                err.message = `Task "${propName}" failed: ${err.message}`;
-                                throw err;
-                            }
-                        }
-                    };
-                } else if (prop._event) {
-                    const {concurrency = 10, timeout = 60000} = prop._event;
-                    const logger = this.logger.sub({
-                        tag: `Event:${propName}`
-                    });
-                    exportedMethods.events[propName] = {
-                        options: {
-                            concurrency,
-                            timeout
-                        },
-                        handler: async data => {
-                            try {
-                                await this[propName](data, { logger });
-                            } catch (err) {
-                                logger.error(err, [`Event: ${propName}`]);
-                            }
-                        }
-                    };
-                }
-            }
-            return exportedMethods;
-        }
-    }
-});
 
 /**
  * @decorator
@@ -194,7 +112,7 @@ export const module = wrapDecorator(({uses = []} = {}) => {
             this.modules = modules;
             this.config = config;
             this.logger = logger;
-            checkUses(this);
+            // checkUses(this);
         };
     }
 });
@@ -229,4 +147,8 @@ export function schema(schema) {
             value: wrapFunction(descriptor.value, newFunction)
         }
     };
+}
+
+export function localBridge() : BridgeFactory {
+    return (options : BridgeOptions) => new LocalBridge();
 }

@@ -1,8 +1,8 @@
 import 'source-map-support/register';
 
-import assert from 'assert';
+import * as assert from 'assert';
 
-import {service, task, schema, App, Config} from '../..';
+import {Application, Service, task, schema, config, localBridge} from '../..';
 import Joi from 'joi';
 
 // -
@@ -13,8 +13,7 @@ function wait(interval = 1000) {
     })
 }
 
-@service
-class TestService {
+class TestService extends Service {
     @task
     @schema(Joi.object().required().keys({
         num: Joi.number().required()
@@ -33,24 +32,26 @@ class TestService {
     }
 }
 
+
 describe('call-task', () => {
 
-    let app;
+    let app : Application;
 
     it('should start', async function () {
 
-        app = new App({
-            config: Config.fromObject({
+        app = new Application({
+            config: config({
                 app: {
                     bridge: {
                         type: 'local'
                     }
                 }
             }),
+            bridges: {
+                local: localBridge()
+            },
             services: {
-                test: {
-                    Class: TestService
-                }
+                test: (options) => new TestService(options)
             }
         });
         await app.start();
