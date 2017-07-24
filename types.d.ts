@@ -1,7 +1,7 @@
 
 import {ConfigInterface} from 'msv-config';
 import {LoggerInterface} from 'msv-logger';
-import {ModuleInterface} from 'deps-tree';
+import {ModuleDescription as DepsTreeModuleDescription} from 'deps-tree';
 
 export * from 'msv-config/types';
 

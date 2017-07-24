@@ -1,8 +1,8 @@
 // import ExtendableError from 'extendable-error';
 
 import {ConfigInterface, config, basicConfig} from 'msv-config';
-import {default as logger, LoggerInterface} from 'msv-logger';
-import {default as depsTree, DepsTree as DepsTree, State as DepsTreeState, ModulesMap as DepsModulesMap } from 'deps-tree';
+import {logger, LoggerInterface} from 'msv-logger';
+import {DepsTree, State as DepsTreeState, ModuleDescription } from 'deps-tree';
 import {
     ApplicationOptions, ApplicationInterface, RunMethod, SendMethod, ServiceInterface, BridgeInterface,
     ServiceFactory, ModuleFactory, ModuleInterface, BridgeOptions, BridgeFactory
@@ -70,7 +70,7 @@ export class Application implements ApplicationInterface {
         this.run = bridge.runTask.bind(this);
         this.send = bridge.sendMessage.bind(this);*/
 
-        const treeElements : DepsModulesMap = {};
+        const treeElements : {[name: string]: ModuleDescription} = {};
 
         // bridge
 

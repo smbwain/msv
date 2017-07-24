@@ -1,28 +1,27 @@
 {
   "name": "msv",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "Micro Services Framework",
   "main": "dist/index.js",
   "types": "types.d.ts",
   "dependencies": {
     "colors": "1.1.2",
     "defer-promise": "1.0.1",
+    "deps-tree": "0.0.1",
+    "msv-config": "0.0.1",
+    "msv-logger": "0.0.1",
     "serialize-error": "2.1.0",
     "source-map-support": "0.4.11"
   },
   "devDependencies": {
     "@types/mocha": "2.2.41",
     "@types/node": "8.0.7",
-    "gulp": "3.9.1",
-    "gulp-sourcemaps": "2.4.1",
-    "gulp-typescript": "3.2.1",
     "joi": "10.2.2",
     "mocha": "3.2.0",
     "typescript": "2.4.1"
   },
   "scripts": {
-    "build": "gulp build",
-    "doc": "",
+    "build": "tsc",
     "test": "mocha dist/tests"
   },
   "repository": {
