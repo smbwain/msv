@@ -1,6 +1,6 @@
 
 import {ConfigInterface} from 'msv-config';
-import {LoggerInterface} from 'msv-logger';
+import {Logger} from 'msv-logger';
 import {ModuleDescription as DepsTreeModuleDescription} from 'deps-tree';
 
 export * from 'msv-config/types';
@@ -14,7 +14,7 @@ export function shadowApp(options : ApplicationOptions, handler : (app: Applicat
 
 export type ApplicationOptions = {
     config? : ConfigInterface;
-    logger? : LoggerInterface;
+    logger? : Logger;
     services? : {
         [name : string] : ServiceDescription
     };
@@ -52,7 +52,7 @@ export type ServiceOptions = {
     run: RunMethod;
     send: SendMethod;
     config: ConfigInterface;
-    logger: LoggerInterface;
+    logger: Logger
     shadowMode: boolean;
     modules: {
         [name: string]: any;
@@ -79,7 +79,7 @@ export abstract class Service implements ServiceInterface {
     protected config : ConfigInterface;
     protected run : RunMethod;
     protected send : SendMethod;
-    protected logger : LoggerInterface;
+    protected logger : Logger;
     protected shadowMode : boolean;
     protected modules : {
         [name: string]: any
@@ -111,7 +111,7 @@ export type ModuleDescription = ModuleFactory | [string[], ModuleFactory];
 
 export type ModuleOptions = {
     config: ConfigInterface;
-    logger: LoggerInterface;
+    logger: Logger;
     modules: {
         [name: string]: any;
     }
@@ -130,7 +130,7 @@ export interface ModuleInterface {
 
 export type BridgeOptions = {
     config: ConfigInterface;
-    logger: LoggerInterface;
+    logger: Logger;
     shadowMode: boolean;
 }
 
@@ -160,12 +160,28 @@ export type EventRunOptions = {
 export type RunMethod = (taskName : string, taskPayLoad : any, taskRunOptions?: TaskRunOptions) => Promise<any>;
 export type SendMethod = (eventName : string, eventPayLoad : any, eventRunOptions?: EventRunOptions) => Promise<void>;
 
+// -- exports
+
 export type TaskDeclarationOptions = {
-    schema: any
+    // schema: any
 };
 
 export function task(options: TaskDeclarationOptions) : (target: any, propertyKey: string, descriptor: PropertyDescriptor) => void;
 export function task(target: any, propertyKey: string, descriptor: PropertyDescriptor) : void;
+
+export type EventDeclarationOptions = {
+    // schema: any
+};
+
+export function event(options: EventDeclarationOptions) : (target: any, propertyKey: string, descriptor: PropertyDescriptor) => void;
+export function event(target: any, propertyKey: string, descriptor: PropertyDescriptor) : void;
+
+/*export type ScriptDeclarationOptions = {
+    // schema: any
+};
+
+export function script(options: ScriptDeclarationOptions) : (target: any, propertyKey: string, descriptor: PropertyDescriptor) => void;
+export function script(target: any, propertyKey: string, descriptor: PropertyDescriptor) : void;*/
 
 export function schema(schema: any) : (target: any, propertyKey: string, descriptor: PropertyDescriptor) => void;
 

@@ -4,14 +4,20 @@
   "description": "Micro Services Framework",
   "main": "dist/index.js",
   "types": "types.d.ts",
+  "bin": {
+    "msv": "dist/bin/msv.js",
+    "msv-app": "dist/bin/msv-app.js"
+  },
   "dependencies": {
     "colors": "1.1.2",
     "defer-promise": "1.0.1",
     "deps-tree": "0.0.1",
+    "js-yaml": "3.9.0",
     "msv-config": "0.0.1",
     "msv-logger": "0.0.1",
     "serialize-error": "2.1.0",
-    "source-map-support": "0.4.11"
+    "source-map-support": "0.4.11",
+    "stream-to-promise": "2.2.0"
   },
   "devDependencies": {
     "@types/mocha": "2.2.41",

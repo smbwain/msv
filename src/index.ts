@@ -1,8 +1,13 @@
 
 import {Application} from './application';
-import {ApplicationOptions, ApplicationInterface, SyncOrAsync, BridgeOptions, BridgeFactory} from "../types";
-export * from 'msv-config';
+import {
+    ApplicationOptions, ApplicationInterface, SyncOrAsync, BridgeOptions, BridgeFactory,
+    ServiceOptions
+} from "../types";
 import LocalBridge from './local-bridge';
+
+export * from 'msv-config';
+export {Service} from './service';
 
 export {Application};
 
@@ -81,6 +86,23 @@ export async function shadowApp(options : ApplicationOptions, handler : (app: Ap
     }
 }
 
+/*export const service = wrapDecorator(({uses = []} = {}) => {
+    return function(target) {
+        const constructor = function(options: ServiceOptions) : void {
+            if(!(this instanceof Service)) {
+                return new constructor(options);
+            }
+        };
+        const F = function() {};
+        F.prototype = Service.prototype;
+        constructor.prototype = new F();
+        for(const propName of target.prototype) {
+            constructor.prototype[propName] = target.prototype[propName];
+        }
+        return target;
+    };
+});*/
+
 /**
  * @decorator
  * @param {object} options
@@ -90,22 +112,25 @@ export async function shadowApp(options : ApplicationOptions, handler : (app: Ap
 export const task = wrapDecorator((options = {}) => {
     return function(target, key, descriptor) {
         descriptor.value._task = options;
-        return {
-            ...descriptor
-        };
-    }
+        return descriptor;
+    };
 });
 
 export const event = wrapDecorator((options = {}) => {
     return function(target, key, descriptor) {
         descriptor.value._event = options;
-        return {
-            ...descriptor
-        };
+        return descriptor;
     }
 });
 
-export const module = wrapDecorator(({uses = []} = {}) => {
+/*export const script = wrapDecorator((options = {}) => {
+    return function(target, key, descriptor) {
+        descriptor.value._script = options;
+        return descriptor;
+    }
+});*/
+
+/*export const module = wrapDecorator(({uses = []} = {}) => {
     return function(target) {
         target.prototype.__uses = new Set(uses);
         target.prototype.__initModule = function({config, logger, modules}) {
@@ -115,7 +140,7 @@ export const module = wrapDecorator(({uses = []} = {}) => {
             // checkUses(this);
         };
     }
-});
+});*/
 
 export function schema(schema) {
     return (target, key, descriptor) => {

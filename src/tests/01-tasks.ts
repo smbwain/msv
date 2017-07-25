@@ -3,7 +3,7 @@ import 'source-map-support/register';
 import * as assert from 'assert';
 
 import {Application, Service, task, schema, config, localBridge} from '../..';
-import Joi from 'joi';
+// import * as Joi from 'joi';
 
 // -
 
@@ -14,10 +14,11 @@ function wait(interval = 1000) {
 }
 
 class TestService extends Service {
-    @task
-    @schema(Joi.object().required().keys({
+
+    /*@schema(Joi.object().required().keys({
         num: Joi.number().required()
-    }))
+    }))*/
+    @task
     async test({
         num
     }, {
@@ -42,9 +43,7 @@ describe('call-task', () => {
         app = new Application({
             config: config({
                 app: {
-                    bridge: {
-                        type: 'local'
-                    }
+                    bridge: 'local'
                 }
             }),
             bridges: {

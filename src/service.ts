@@ -1,6 +1,6 @@
 
 import {RunMethod, SendMethod, ServiceExportedMethods, ServiceOptions} from "../types";
-import {LoggerInterface} from 'msv-logger';
+import {Logger} from 'msv-logger';
 import {ConfigInterface} from "msv-config";
 
 function getAllPropertyNames(obj) {
@@ -18,7 +18,7 @@ export abstract class Service {
     protected config : ConfigInterface;
     protected run : RunMethod;
     protected send : SendMethod;
-    protected logger : LoggerInterface;
+    protected logger : Logger;
     protected shadowMode : boolean;
     protected modules : {
         [name: string]: any
@@ -57,9 +57,19 @@ export abstract class Service {
                 continue;
             }
 
-            const taskMatch = propName.match('/^(.+)Task$/');
-            if (taskMatch) {
-                const taskName = taskMatch[1];
+            let taskName, taskOptions;
+            {
+                const match = propName.match('/^(.+)Task$/');
+                if(match) {
+                    taskName = match[1];
+                    taskOptions = this[`${propName}Options`] || {};
+                } else if(this[propName]._task) {
+                    taskName = propName;
+                    taskOptions = this[propName]._task;
+                }
+            }
+
+            if (taskName) {
                 // const {concurrency = 10, timeout = 60000} = this[`${propName}Options`]._task;
                 const logger = this.logger.sub({
                     tag: `Task:${taskName}`
@@ -83,9 +93,19 @@ export abstract class Service {
                 continue;
             }
 
-            const eventMatch = propName.match('/^(.+)Event$/');
-            if (eventMatch) {
-                const eventName = eventMatch[1];
+            let eventName, eventOptions;
+            {
+                const match = propName.match('/^(.+)Event/');
+                if(match) {
+                    eventName = match[1];
+                    eventOptions = this[`${propName}Options`] || {};
+                } else if(this[propName]._event) {
+                    eventName = propName;
+                    eventOptions = this[propName]._event;
+                }
+            }
+
+            if (eventName) {
                 // const {concurrency = 10, timeout = 60000} = prop._event;
                 const logger = this.logger.sub({
                     tag: `Event:${eventName}`

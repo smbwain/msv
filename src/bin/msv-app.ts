@@ -1,9 +1,7 @@
+#!/usr/bin/env node
 import 'source-map-support/register';
 
-import {runApp} from '../index';
+import {runApp} from '../..';
+import {join} from 'path';
 
-// const options = require(process.argv[2]).options;
-
-console.log(process.argv);
-
-// runApp(options);
+runApp(require(join(process.cwd(), process.argv[2] || 'dist/app.js')).options);

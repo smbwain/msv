@@ -1,7 +1,7 @@
 // import ExtendableError from 'extendable-error';
 
 import {ConfigInterface, config, basicConfig} from 'msv-config';
-import {logger, LoggerInterface} from 'msv-logger';
+import {logger, Logger} from 'msv-logger';
 import {DepsTree, State as DepsTreeState, ModuleDescription } from 'deps-tree';
 import {
     ApplicationOptions, ApplicationInterface, RunMethod, SendMethod, ServiceInterface, BridgeInterface,
@@ -16,7 +16,7 @@ import {
 }*/
 
 export class Application implements ApplicationInterface {
-    public readonly logger : LoggerInterface;
+    public readonly logger : Logger;
     public readonly config : ConfigInterface;
     // private shareConfig : ConfigInterface;
     // private serviceFactories : {
@@ -33,8 +33,8 @@ export class Application implements ApplicationInterface {
         [name : string] : ModuleInterface
     } = {};
     // private bridge : BridgeInterface;
-    public readonly run : RunMethod;
-    public readonly send : SendMethod;
+    public run : RunMethod;
+    public send : SendMethod;
     private depsTree : DepsTree;
 
     constructor(options : ApplicationOptions) {
@@ -88,8 +88,12 @@ export class Application implements ApplicationInterface {
         treeElements.bridge = {
             init: async() => {
                 await bridge.init();
+                this.run = bridge.run.bind(bridge);
+                this.send = bridge.send.bind(bridge);
             },
             deinit: async() => {
+                this.run = null;
+                this.send = null;
                 await bridge.deinit();
             },
             data: bridge,
@@ -202,20 +206,10 @@ export class Application implements ApplicationInterface {
 
         this.depsTree = new DepsTree(treeElements);
         this.depsTree.on('module-state', (moduleName, state) => {
-            switch(state) {
-                case 2:
-                case 4:
-                case 5:
-                    loaderLogger.log(`[${DepsTreeState[state]}] ${moduleName}`);
-            }
+            loaderLogger.log(`${moduleName}   [${DepsTreeState[state]}]`);
         });
         this.depsTree.on('state', (state) => {
-            switch(state) {
-                case 2:
-                case 4:
-                case 5:
-                    loaderLogger.log(`[${DepsTreeState[state]}] application`);
-            }
+            loaderLogger.log(`application   [${DepsTreeState[state]}]`);
         });
         this.depsTree.on('error', (err, module) => {
             loaderLogger.error(`#${module}`, err);
