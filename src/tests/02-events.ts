@@ -1,9 +1,9 @@
 import 'source-map-support/register';
 
-import assert from 'assert';
+import * as assert from 'assert';
 
-import {service, event, schema, App, Config} from '../..';
-import Joi from 'joi';
+import {Service, event, schema, Application, config, localBridge} from '../..';
+import * as Joi from 'joi';
 
 // -
 
@@ -13,8 +13,7 @@ function wait(interval = 1000) {
     })
 }
 
-@service
-class TestService {
+class TestService extends Service {
     @event
     @schema(Joi.object().required().keys({
         num: Joi.number().required()
@@ -38,18 +37,17 @@ describe('call-event', () => {
 
     it('should start', async function () {
 
-        app = new App({
-            config: Config.fromObject({
+        app = new Application({
+            config: config({
                 app: {
-                    bridge: {
-                        type: 'local'
-                    }
+                    bridge: 'local'
                 }
             }),
+            bridges: {
+                local: localBridge()
+            },
             services: {
-                test: {
-                    Class: TestService
-                }
+                test: options => new TestService(options)
             }
         });
         await app.start();

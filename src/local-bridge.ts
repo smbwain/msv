@@ -20,7 +20,7 @@ export default class LocalBridge implements BridgeInterface {
             serviceName: string,
             handler: (eventPayLoad : any) => Promise<void>
         }>
-    };
+    } = {};
     private _tasksQueue : Array<[[string, any, TaskRunOptions], Defer<any>]> = [];
     private _eventsQueue : Array<[string, any, EventRunOptions]> = [];
 
