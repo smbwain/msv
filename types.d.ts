@@ -75,13 +75,13 @@ export abstract class Service implements ServiceInterface {
     deinit(): SyncOrAsync<void>;
     enable() : void;
     disable() : void;
-    protected enabled : boolean;
-    protected config : ConfigInterface;
-    protected run : RunMethod;
-    protected send : SendMethod;
-    protected logger : Logger;
-    protected shadowMode : boolean;
-    protected modules : {
+    public enabled : boolean;
+    public config : ConfigInterface;
+    public run : RunMethod;
+    public send : SendMethod;
+    public logger : Logger;
+    public shadowMode : boolean;
+    public modules : {
         [name: string]: any
     };
 }
@@ -150,7 +150,7 @@ export interface BridgeInterface {
 // --- common
 
 export type TaskRunOptions = {
-    wait?: number
+    wait?: number | boolean
 }
 
 export type EventRunOptions = {

@@ -15,12 +15,12 @@ function getAllPropertyNames(obj) {
 }
 
 export abstract class Service {
-    protected config : ConfigInterface;
-    protected run : RunMethod;
-    protected send : SendMethod;
-    protected logger : Logger;
-    protected shadowMode : boolean;
-    protected modules : {
+    public config : ConfigInterface;
+    public run : RunMethod;
+    public send : SendMethod;
+    public logger : Logger;
+    public shadowMode : boolean;
+    public modules : {
         [name: string]: any
     };
 
