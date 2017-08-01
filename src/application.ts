@@ -188,9 +188,8 @@ export class Application implements ApplicationInterface {
                     });
 
                     if(module.init) {
-                        await module.init();
+                        return await module.init();
                     }
-                    return module;
                 },
                 deinit: async () => {
                     const module = this.modules[moduleName];
